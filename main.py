@@ -121,7 +121,8 @@ def search():
         for recipe in recipes:
             if recipe not in recipe_list:
                 recipe_list.append(recipe)
-    print(recipe_list)
+        if len(recipe_list) == 0:
+            flash("Nothing found, try again")
     return render_template("search.html", form=form, logged_in=current_user.is_authenticated, results=recipe_list)
 
 @app.route('/myrecipes/')
@@ -149,7 +150,7 @@ def snap_recipe(recipe_id):
     print(current_user.id)
     recipe = db.session.query(Recipe).filter_by(recipe_id=recipe_id).first()
     snapped_recipe = Recipe(
-        recipe_name=recipe.recipe_name,
+        recipe_name=f"{recipe.recipe_name}(snap)",
         owner=current_user.id
     )
     db.session.add(snapped_recipe)

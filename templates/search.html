@@ -8,11 +8,20 @@
     <h2>Search</h2>
     <div class="row">
             <div class="col-lg-8 col-md-10 mx-auto">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            {% for message in messages %}
+            <p class="flash-message">{{ message }}</p>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
             {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+
             {% for recipe in results %}
                 <a class="nav-link" href="{{ url_for('display_recipe', current_recipe=recipe.recipe_name) }}">
-                        {{ recipe.recipe_name }}</a>
+                    {{ recipe.recipe_name }}</a>
             {% endfor %}
+
             </div>
     </div>
 </div>
