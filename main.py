@@ -109,21 +109,57 @@ def logout():
     logout_user()
     return redirect(url_for('home', logged_in=current_user.is_authenticated))
 
-@app.route('/search/')
+@app.route('/search/', methods=["POST","GET"])
 def search():
     form = SearchForm()
-    return render_template("search.html", form=form, logged_in=current_user.is_authenticated)
+    keywords = ""
+    if form.validate_on_submit():
+        keywords = form.search.data.split()
+    recipe_list = []
+    for term in keywords:
+        recipes = db.session.query(Recipe).filter(Recipe.recipe_name.ilike(f"%{term}%")).all()
+        for recipe in recipes:
+            if recipe not in recipe_list:
+                recipe_list.append(recipe)
+    print(recipe_list)
+    return render_template("search.html", form=form, logged_in=current_user.is_authenticated, results=recipe_list)
 
 @app.route('/myrecipes/')
 def myrecipes():
     form = SearchForm()
     recipe_list = []
     my_recipes = db.session.query(Recipe).filter_by(owner=current_user.id).all()
+    print(my_recipes)
     for recipe in my_recipes:
         recipe_list.append(recipe)
     print(recipe_list)
     return render_template("myrecipes.html", form=form, logged_in=current_user.is_authenticated, recipes=recipe_list)
 
+@app.route('/display_recipe/<current_recipe>')
+def display_recipe(current_recipe):
+    recipe_owner = db.session.query(Recipe.owner).filter_by(recipe_name=current_recipe).first()
+    recipe_id = db.session.query(Recipe.recipe_id).filter_by(recipe_name=current_recipe).first()
+    owner_name = db.session.query(User.name).filter_by(id=recipe_owner[0]).first()
+    return render_template("display_recipe.html", logged_in=current_user.is_authenticated, recipe=current_recipe,
+                           owner=owner_name[0], recipe_id=recipe_id[0])
+
+@app.route('/snap_recipe/<recipe_id>')
+def snap_recipe(recipe_id):
+    print("Snap!")
+    print(current_user.id)
+    recipe = db.session.query(Recipe).filter_by(recipe_id=recipe_id).first()
+    snapped_recipe = Recipe(
+        recipe_name=recipe.recipe_name,
+        owner=current_user.id
+    )
+    db.session.add(snapped_recipe)
+    db.session.commit()
+
+    recipe_list = []
+    my_recipes = db.session.query(Recipe).filter_by(owner=current_user.id).all()
+    for recipe in my_recipes:
+        recipe_list.append(recipe)
+    return redirect(url_for("myrecipes", logged_in=current_user.is_authenticated))
 
 
 if __name__ == "__main__":

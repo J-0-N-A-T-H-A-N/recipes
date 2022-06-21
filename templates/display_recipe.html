@@ -1,0 +1,23 @@
+{% extends 'bootstrap/base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% include "header.html" %}
+{% block content %}
+
+<div class="container">
+    <h2>{{ recipe }}</h2>
+    <div class="row">
+            <div class="col-lg-8 col-md-10 mx-auto">
+                {% if owner == current_user.name %}
+                This is your recipe
+                {% else %}
+                This recipe is owned by another user ({{ owner }})
+                <button type="button" class="btn btn-info" onclick="window.location.href='{{ url_for('snap_recipe', recipe_id=recipe_id) }}'">
+                    Snap Recipe</button>
+                {% endif %}
+
+            </div>
+    </div>
+</div>
+{% include "footer.html" %}
+{% endblock %}
