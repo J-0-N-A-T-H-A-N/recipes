@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms import RegisterForm, LoginForm, SearchForm
+from forms import RegisterForm, LoginForm, SearchForm, AddRecipe
 import os
 
 app = Flask(__name__)
@@ -130,10 +130,10 @@ def myrecipes():
     form = SearchForm()
     recipe_list = []
     my_recipes = db.session.query(Recipe).filter_by(owner=current_user.id).all()
-    print(my_recipes)
+    # print(my_recipes)
     for recipe in my_recipes:
         recipe_list.append(recipe)
-    print(recipe_list)
+    # print(recipe_list)
     return render_template("myrecipes.html", form=form, logged_in=current_user.is_authenticated, recipes=recipe_list)
 
 @app.route('/display_recipe/<current_recipe>')
@@ -146,8 +146,8 @@ def display_recipe(current_recipe):
 
 @app.route('/snap_recipe/<recipe_id>')
 def snap_recipe(recipe_id):
-    print("Snap!")
-    print(current_user.id)
+    # print("Snap!")
+    # print(current_user.id)
     recipe = db.session.query(Recipe).filter_by(recipe_id=recipe_id).first()
     snapped_recipe = Recipe(
         recipe_name=f"{recipe.recipe_name}(snap)",
@@ -162,6 +162,20 @@ def snap_recipe(recipe_id):
         recipe_list.append(recipe)
     return redirect(url_for("myrecipes", logged_in=current_user.is_authenticated))
 
+
+@app.route('/add_recipe', methods=["POST","GET"])
+def add_recipe():
+    form = AddRecipe()
+    if form.validate_on_submit():
+        new_recipe = Recipe(
+            recipe_name=form.name.data,
+            owner=current_user.id
+        )
+        db.session.add(new_recipe)
+        db.session.commit()
+
+        return redirect(url_for("myrecipes", logged_in=current_user.is_authenticated))
+    return render_template("add_recipe.html", logged_in=current_user.is_authenticated, form=form)
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0")
