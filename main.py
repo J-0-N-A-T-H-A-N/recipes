@@ -138,10 +138,11 @@ def myrecipes():
 
 @app.route('/display_recipe/<current_recipe>')
 def display_recipe(current_recipe):
-    recipe_owner = db.session.query(Recipe.owner).filter_by(recipe_name=current_recipe).first()
-    recipe_id = db.session.query(Recipe.recipe_id).filter_by(recipe_name=current_recipe).first()
+    recipe_owner = db.session.query(Recipe.owner).filter_by(recipe_id=current_recipe).first()
+    recipe_id = db.session.query(Recipe.recipe_id).filter_by(recipe_id=current_recipe).first()
+    recipe_name = db.session.query(Recipe.recipe_name).filter_by(recipe_id=current_recipe).first()
     owner_name = db.session.query(User.name).filter_by(id=recipe_owner[0]).first()
-    return render_template("display_recipe.html", logged_in=current_user.is_authenticated, recipe=current_recipe,
+    return render_template("display_recipe.html", logged_in=current_user.is_authenticated, recipe=recipe_name[0],
                            owner=owner_name[0], recipe_id=recipe_id[0])
 
 @app.route('/snap_recipe/<recipe_id>')
@@ -163,7 +164,7 @@ def snap_recipe(recipe_id):
     return redirect(url_for("myrecipes", logged_in=current_user.is_authenticated))
 
 
-@app.route('/add_recipe', methods=["POST","GET"])
+@app.route('/add_recipe', methods=["POST", "GET"])
 def add_recipe():
     form = AddRecipe()
     if form.validate_on_submit():

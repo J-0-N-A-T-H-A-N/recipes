@@ -15,10 +15,10 @@
             {% endfor %}
             {% endif %}
             {% endwith %}
-            {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+            {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "info"}) }}
 
             {% for recipe in results %}
-                <a class="nav-link" href="{{ url_for('display_recipe', current_recipe=recipe.recipe_name) }}">
+                <a class="nav-link" href="{{ url_for('display_recipe', current_recipe=recipe.recipe_id) }}">
                     {{ recipe.recipe_name }}</a>
             {% endfor %}
 

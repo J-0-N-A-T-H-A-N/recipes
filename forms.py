@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, IntegerField
+from wtforms import StringField, SubmitField, PasswordField, IntegerField, SelectField
 from wtforms.validators import DataRequired, URL, NumberRange
 
 
@@ -25,4 +25,5 @@ class SearchForm(FlaskForm):
 class AddRecipe(FlaskForm):
     name = StringField("Recipe Name", validators=[DataRequired()])
     servings = IntegerField("Number of Servings", validators=[DataRequired(), NumberRange(min=1)])
+    course = SelectField("Course", choices=["", "Starter", "Main", "Dessert"])
     submit = SubmitField("Add")
